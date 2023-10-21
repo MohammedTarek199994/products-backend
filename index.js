@@ -14,7 +14,11 @@ app.use(express.static("public"));
 const methodOverride = require("method-override");
 app.use(methodOverride("_method"));
 const fileUpload = require("express-fileupload");
-app.use(fileUpload());
+app.use(
+  fileUpload({
+    useTempFiles: true,
+  })
+);
 const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
@@ -22,7 +26,7 @@ app.use(cors());
 //--------------------------------
 
 // Define a temporary folder to store the uploaded files
-const tempFolder = path.join(__dirname,"tmp");
+const tempFolder = path.join(__dirname, "tmp");
 
 // Ensure the temporary folder exists, or create it if not
 if (!fs.existsSync(tempFolder)) {
