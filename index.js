@@ -68,18 +68,22 @@ function sendEmail(to, subject, text, res) {
 }
 //:::::::::::::::::::::::::::::::::::::::::::::::::::
 
-///-----------------------------
-// const cloud = require("cloudinary");
-// const cloudinary = cloud.v2;
-// cloudinary.config({
-//   cloud_name: "dpyzuvtxl",
-//   api_key: "126616754537225",
-//   api_secret: "3NEfii_7msieIgCrsUZTloMFgO8",
-// });
-// cloudinary.uploader.upload("https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg",
-//   { public_id: "olympic_flag" },
-//   function(error, result) {console.log(result);});
-///-----------------------------
+// /-----------------------------
+const cloud = require("cloudinary");
+const cloudinary = cloud.v2;
+cloudinary.config({
+  cloud_name: "dpyzuvtxl",
+  api_key: "126616754537225",
+  api_secret: "3NEfii_7msieIgCrsUZTloMFgO8",
+});
+// cloudinary.uploader.upload(
+//   "https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg",
+//   { public_id: "olympic_flag", folder: "test-tarek" },
+//   function (error, result) {
+//     console.log(result);
+//   }
+// );
+// /-----------------------------
 
 app.get("/", (req, res) => {
   res.send("welcome");
@@ -89,54 +93,91 @@ app.post("/addProduct", async (req, res) => {
   if (!req.files || !req.files.image) {
     return res.status(400).send("No files were uploaded.");
   }
+
   const image = req.files.image;
   const imageExtension = path.extname(image.name);
   const randomSuffix = Math.floor(Math.random() * 10000000000);
   image.name = randomSuffix + imageExtension;
-  const uploadPath = __dirname + "/public/uploads/" + image.name;
-  image.mv(uploadPath, (err) => {
-    if (err) {
-      res.send("Error when uploading the image");
+  // Assuming image is an object containing the image data
+  const imageBuffer = image.data;
+  const tempFileName = `temp_${Date.now()}.jpg`;
+  fs.writeFileSync(tempFileName, imageBuffer);
+  // Upload the image to Cloudinary
+  cloudinary.uploader.upload(
+    tempFileName,
+    { public_id: image.name, folder: "test-tarek" },
+    async function (error, result) {
+      if (error) {
+        console.error("Error when uploading to Cloudinary:", error);
+        return res
+          .status(500)
+          .send("Error when uploading the image to Cloudinary.");
+      }
+
+      // Image uploaded successfully, result contains Cloudinary information
+      const imageUploaded = result;
+
+      // Now, create the Product with the image information
+      const productName = req.body.name;
+      const productDescription = req.body.description;
+      const productPrice = Number(req.body.price);
+
+      const product = new Product({
+        name: productName,
+        description: productDescription,
+        price: productPrice,
+        image: imageUploaded.url,
+        imageObject: imageUploaded, // Cloudinary result
+      });
+
+      // Save the product to your database
+      try {
+        await product.save();
+        res.redirect("/products");
+      } catch (err) {
+        console.error("Error when saving the product:", err);
+        return res.status(500).send("Error when saving the product.");
+      }
+
+      // Clean up the temporary file
+      fs.unlinkSync(tempFileName);
     }
-  });
-  //----------
-  const productName = req.body.name;
-  const productDescription = req.body.description;
-  const productPrice = Number(req.body.price);
-  let product = new Product({
-    name: productName,
-    description: productDescription,
-    price: productPrice,
-    image: "uploads/" + image.name,
-    imageObject: image,
-  });
-  await product.save();
-  res.redirect("/products");
+  );
 });
 
 app.get("/addProduct", (req, res) => {
   res.render("addProduct");
 });
 //-----------------------------------------
+//delete product ..
 app.delete("/deleteProduct/:productId", async (req, res) => {
   const productId = req.params.productId;
-
+  // Find the product by ID
   const product = await Product.findById(productId);
-  const deletePath = __dirname + "/public/" + product.image;
-
   if (!product) {
     return res.status(404).send("Product not found");
   }
-  fs.unlink(deletePath, (err) => {
-    if (err) {
-      res.send("Error deleting the file");
-    }
-  });
-
-  await Product.deleteOne({ _id: productId });
-  res.redirect("/products");
+  // Delete the image from Cloudinary if it exists
+  if (product.imageObject && product.imageObject.public_id) {
+    cloudinary.uploader.destroy(
+      product.imageObject.public_id,
+      function (error, result) {
+        if (error) {
+          console.error("Error deleting image from Cloudinary:", error);
+          return res.status(500).send("Error deleting the product and image.");
+        }
+        // Image deleted from Cloudinary, now delete the product from the database
+        Product.deleteOne({ _id: productId }).then(() => {
+          res.redirect("/products");
+        });
+      }
+    );
+  } else {
+    // If there's no image in Cloudinary, delete the product from the database directly
+    await Product.deleteOne({ _id: productId });
+    res.redirect("/products");
+  }
 });
-
 //-----------------------------------------
 app.get("/updateProduct", (req, res) => {
   res.render("updateProduct", {
@@ -158,40 +199,56 @@ app.post("/updateProduct/:productId", async (req, res) => {
 //------------------------------------------------------------------------
 app.put("/updateProduct/:productId", async (req, res) => {
   const productId = req.params.productId;
-  const oldProduct = await Product.findOne({ _id: productId });
-  //const uploadPath = __dirname + "/public/uploads/" + image.name;
-
+  const product = await Product.findOne({ _id: productId });
   let newImage;
   let newImageObject;
+
   if (!req.files || !req.files.image) {
-    newImage = oldProduct.image;
-    newImageObject = oldProduct.imageObject;
+    newImage = product.image;
+    newImageObject = product.imageObject;
   } else {
-    // upload the new image
+    // Upload New Image to the cloudnary ....
     const image = req.files.image;
     const imageExtension = path.extname(image.name);
     const randomSuffix = Math.floor(Math.random() * 10000000000);
     image.name = randomSuffix + imageExtension;
-    newImage = "uploads/" + image.name;
-    newImageObject = image;
-    const uploadPath = __dirname + "/public/uploads/" + image.name;
-    image.mv(uploadPath, (err) => {
-      if (err) {
-        res.send("Error when upload the new updated image >> ");
+    // Assuming image is an object containing the image data
+    const imageBuffer = image.data;
+    const tempFileName = `temp_${Date.now()}.jpg`;
+    fs.writeFileSync(tempFileName, imageBuffer);
+    // Upload the image to Cloudinary
+    cloudinary.uploader.upload(
+      tempFileName,
+      { public_id: image.name, folder: "test-tarek" },
+      async function (error, result) {
+        if (error) {
+          console.error("Error when uploading to Cloudinary:", error);
+          return res
+            .status(500)
+            .send("Error when uploading the image to Cloudinary.");
+        }
+
+        // Image uploaded successfully, result contains Cloudinary information
+        const imageUploaded = result;
+        newImage = imageUploaded.url;
+        newImageObject = imageUploaded;
+        // Clean up the temporary file
+        fs.unlinkSync(tempFileName);
       }
-    });
+    );
 
     // delete old image .......
-    const product = await Product.findById(productId);
-    const deletePath = __dirname + "/public/" + product.image;
-    if (!product) {
-      return res.status(404).send("Product not found");
-    }
-    fs.unlink(deletePath, (err) => {
-      if (err) {
-        console.error("Error deleting the file:", err);
+    cloudinary.uploader.destroy(
+      product.imageObject.public_id,
+      function (error, result) {
+        if (error) {
+          console.error("Error deleting image from Cloudinary:", error);
+          return res.status(500).send("Error deleting the product and image.");
+        }
       }
-    });
+    );
+
+    //--------------------------------
   }
 
   // update product data ....
@@ -252,6 +309,6 @@ app.post("/sendEmail", (req, res) => {
   res.send("Email sent successfully.");
 });
 
-app.listen(process.env.PORT, () => {
-  console.log("server is running on port 3000");
+app.listen(3000, () => {
+  console.log(`server is running on port 3000`);
 });
