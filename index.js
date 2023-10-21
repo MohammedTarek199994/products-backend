@@ -21,6 +21,15 @@ const cors = require("cors");
 app.use(cors());
 //--------------------------------
 
+// Define a temporary folder to store the uploaded files
+const tempFolder = path.join(__dirname,"tmp");
+
+// Ensure the temporary folder exists, or create it if not
+if (!fs.existsSync(tempFolder)) {
+  fs.mkdirSync(tempFolder);
+}
+//---------------------------------
+
 app.use(express.json());
 // connect to database :::::::::::::::::::::::::::::
 mongoos
@@ -100,11 +109,20 @@ app.post("/addProduct", async (req, res) => {
   image.name = randomSuffix + imageExtension;
   // Assuming image is an object containing the image data
   const imageBuffer = image.data;
-  const tempFileName = `./tmp/temp_${Date.now()}.jpg`;
-  fs.writeFileSync(tempFileName, imageBuffer);
+  const tempFileName = `/temp_${Date.now()}.jpg`;
+  const tempFilePath = path.join(tempFolder, tempFileName);
+  image.mv(tempFilePath, (err) => {
+    if (err) {
+      return res
+        .status(500)
+        .send("Error when saving the image to the temporary folder.");
+    }
+  });
+  //fs.writeFileSync(tempFileName, imageBuffer);
+
   // Upload the image to Cloudinary
   cloudinary.uploader.upload(
-    tempFileName,
+    tempFilePath,
     { public_id: image.name, folder: "test-tarek" },
     async function (error, result) {
       if (error) {
@@ -140,7 +158,7 @@ app.post("/addProduct", async (req, res) => {
       }
 
       // Clean up the temporary file
-      fs.unlinkSync(tempFileName);
+      // fs.unlinkSync(tempFileName);
     }
   );
 });
