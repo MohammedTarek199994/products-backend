@@ -100,7 +100,7 @@ app.post("/addProduct", async (req, res) => {
   image.name = randomSuffix + imageExtension;
   // Assuming image is an object containing the image data
   const imageBuffer = image.data;
-  const tempFileName = `temp_${Date.now()}.jpg`;
+  const tempFileName = `./tmp/temp_${Date.now()}.jpg`;
   fs.writeFileSync(tempFileName, imageBuffer);
   // Upload the image to Cloudinary
   cloudinary.uploader.upload(
