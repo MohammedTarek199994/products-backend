@@ -1,10 +1,11 @@
 const cloud = require("cloudinary");
-require("dotenv").config({ path: ".env" });
+// require("dotenv").config({ path: ".env" });
 const cloud_name = process.env.CLOUDINARY_NAME;
 const api_key = process.env.CLOUDINARY_API_KEY;
 const api_secret = process.env.CLOUDINARY_API_SECRET;
 const cloudinary = cloud.v2;
 const connectCloudinary = async () => {
+  console.log("Cloudinary api key >>> ", api_key);
   await cloudinary.config({
     cloud_name: cloud_name,
     api_key: api_key,
