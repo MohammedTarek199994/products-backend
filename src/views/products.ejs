@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href="./css/products.css" />
+    <link rel="stylesheet" type="text/css" href="\css\products.css" />
     <title>Document</title>
   </head>
   <body>
@@ -11,7 +11,7 @@
       <a href="#"><h1>E-Commerce</h1></a>
       <ul>
         <a href="/products"> <li>Products</li></a>
-        <a href="/addProduct"> <li>Add Product</li></a>
+        <a href="/products/add"> <li>Add Product</li></a>
       </ul>
     </nav>
     <!--  -->
@@ -49,12 +49,12 @@
         <div class="form-group">
           <form
             method="POST"
-            action="/deleteProduct/<%= products[i]._id %>?_method=DELETE">
+            action="/products/<%= products[i]._id %>?_method=DELETE">
             <input type="hidden" name="_method" value="DELETE" />
             <button class="delete" type="submit">Delete</button>
           </form>
           <!-- ------------------------------------------------------------------- -->
-          <form method="POST" action="/updateProduct/<%=products[i]._id%>">
+          <form method="POST" action="/products/update/<%=products[i]._id%>">
             <button class="update" type="submit">Update</button>
           </form>
           <!-- ------------------------------------------------------------------- -->

@@ -3,46 +3,53 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href="./css/addProduct.css" />
     <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="\css\updateProduct.css" />
+    <style></style>
   </head>
   <body>
     <nav>
       <a href="#"><h1>E-Commerce</h1></a>
       <ul>
         <a href="/products"> <li>Products</li></a>
-        <a href="/addProduct"> <li>Add Product</li></a>
+        <a href="/products/add"> <li>Add Product</li></a>
       </ul>
     </nav>
-    <!--  -->
+    <!-- ###########################################  -->
     <div class="form-container">
-      <p class="title">Add Product</p>
+      <p class="title">Update Product</p>
       <form
         method="post"
-        action="/sendEmail"
-        class="form"
-        enctype="multipart/form-data">
+        action="/products/update/<%=product._id%>?_method=PUT"
+        enctype="multipart/form-data"
+        class="form">
         <div class="input-group">
-          <label for="fullname">Full Name</label>
+          <label for="productname">Product Name</label>
           <input
             type="text"
-            name="fullName"
-            id="fullname"
-            placeholder="Full Name" />
+            name="name"
+            id="productname"
+            value="<%=product.name%>"
+            placeholder="Product Name" />
         </div>
         <div class="input-group">
-          <label for="email">Email</label>
-          <input type="email" name="email" id="email" placeholder="Email" />
+          <label for="productdescription">Product Description</label>
+          <input
+            type="text"
+            name="description"
+            id="productdescription"
+            value="<%=product.description%>"
+            placeholder="Product Description" />
         </div>
         <div class="input-group">
-          <label for="message">Product Price</label>
-
-          <textarea
-            name="message"
-            id="message"
-            placeholder="Message"
-            cols="30"
-            rows="10"></textarea>
+          <label for="productprice">Product Price</label>
+          <input
+            type="number"
+            name="price"
+            step="0.001"
+            id="productprice"
+            value="<%=product.price%>"
+            placeholder="Product price" />
         </div>
         <div class="input-image">
           <div class="input-div">
@@ -52,6 +59,7 @@
               class="form-control"
               id="imageInput"
               name="image"
+              value="<%=imagePath%>"
               accept="image/*" />
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -72,10 +80,14 @@
             </svg>
           </div>
         </div>
-
         <div class="input-image" id="imagePreview">
-          <img id="previewImage" src="" alt="image-prev" style="width: 100%" />
+          <img
+            id="previewImage"
+            src="<%=product.image%>"
+            alt="image-prev"
+            style="width: 100%" />
         </div>
+
         <button type="submit" class="submit">Submit</button>
       </form>
     </div>
