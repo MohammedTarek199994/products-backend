@@ -5,7 +5,7 @@ const api_key = process.env.CLOUDINARY_API_KEY;
 const api_secret = process.env.CLOUDINARY_API_SECRET;
 const cloudinary = cloud.v2;
 const connectCloudinary = async () => {
-  console.log("Cloudinary api key >>> ", api_key);
+  // console.log("Cloudinary api key >>> ", api_key);
   await cloudinary.config({
     cloud_name: cloud_name,
     api_key: api_key,
