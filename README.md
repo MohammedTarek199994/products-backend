@@ -10,12 +10,6 @@
 ## Update Product Page 👨‍💻 :: 
 ![Google Sheet](screenshots/updateProductPage.png?raw=true)
 
-## Table of Contents
-
-1. [Installation](#installation)
-2. [File Structure](#file-structure)
-3. [Screenshots](#screenshots)
-
 ## Installation
 
 Provide detailed instructions on how to install and run your project locally. Include any prerequisites or dependencies.
@@ -32,7 +26,8 @@ List any software or tools that need to be installed before following your instr
 
 1. Clone the repository:
    ```bash
-   https://github.com/MohammedTarek199994/products-backend.git
+   git clone https://github.com/MohammedTarek199994/products-backend.git
+
    cd your-project
    npm install
    npm start
