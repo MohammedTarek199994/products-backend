@@ -5,11 +5,11 @@ const fileController = require("../controllers/fileController");
 const fs = require("fs");
 const path = require("path");
 //define the tmp file and create it if not founded ...
-const tempFolder = path.join(__dirname, "tmp");
-// Ensure the temporary folder exists, or create it if not
-if (!fs.existsSync(tempFolder)) {
-  fs.mkdirSync(tempFolder);
-}
+// const tempFolder = path.join(__dirname, "tmp");
+// // Ensure the temporary folder exists, or create it if not
+// if (!fs.existsSync(tempFolder)) {
+//   fs.mkdirSync(tempFolder);
+// }
 //=====================================
 const getAllProducts = async (req, res) => {
   await Product.find()
