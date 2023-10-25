@@ -27,3 +27,24 @@ List any software or tools that need to be installed before following your instr
    ```bash
    git clone https://github.com/yourusername/your-project.git
    cd your-project
+## File Structure
+
+Here is the structure of your project's directories and key files:
+your-project/
+├── node_modules/
+├── public/
+│   ├── images/
+│   ├── styles/
+│   └── ...
+├── src/
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   ├── views/
+│   ├── app.js
+│   └── ...
+├── .env
+├── package.json
+├── README.md
+└── ...
+
