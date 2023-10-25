@@ -1,5 +1,5 @@
 # Products Back-end Using NodeJs:: 
-## Note:: Add product closed for security ...
+## Note:: Adding product closed for security on hosted site
 ### "E-Commerce" is a web application built with Node.js and Express, allowing users to manage and showcase products. It features product listing, addition, and updates while leveraging cloud storage for images.
 
 ## Products Page 👨‍💻 ::
